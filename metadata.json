@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Remix: Remix: Remix: Matsumura Team",
+  "description": "Gerenciador completo de academias para criação, edição e acompanhamento de atletas e suas graduações.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

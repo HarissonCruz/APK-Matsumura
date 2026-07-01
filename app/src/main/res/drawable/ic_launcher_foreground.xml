@@ -1,0 +1,93 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Outer Zen Circle Border -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.5"
+        android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M 54,16 A 38,38 0 1,1 53.99,16" />
+
+    <!-- Inner Accent Border Ring -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.0"
+        android:fillColor="#00000000"
+        android:strokeAlpha="0.4"
+        android:pathData="M 54,22 A 32,32 0 1,1 53.99,22" />
+
+    <!-- 5-Petal Sakura Flower using Groups with Rotation and Pivot -->
+    <!-- Petal 1: 0 degrees -->
+    <group
+        android:rotation="0"
+        android:pivotX="54"
+        android:pivotY="54">
+        <path
+            android:fillColor="#DC2626"
+            android:strokeColor="#7F1D1D"
+            android:strokeWidth="0.8"
+            android:pathData="M 54,54 C 47,42 45,33 50,27 C 51.5,25.5 53,28 54,30 C 55,28 56.5,25.5 58,27 C 63,33 61,42 54,54 Z" />
+    </group>
+
+    <!-- Petal 2: 72 degrees -->
+    <group
+        android:rotation="72"
+        android:pivotX="54"
+        android:pivotY="54">
+        <path
+            android:fillColor="#DC2626"
+            android:strokeColor="#7F1D1D"
+            android:strokeWidth="0.8"
+            android:pathData="M 54,54 C 47,42 45,33 50,27 C 51.5,25.5 53,28 54,30 C 55,28 56.5,25.5 58,27 C 63,33 61,42 54,54 Z" />
+    </group>
+
+    <!-- Petal 3: 144 degrees -->
+    <group
+        android:rotation="144"
+        android:pivotX="54"
+        android:pivotY="54">
+        <path
+            android:fillColor="#DC2626"
+            android:strokeColor="#7F1D1D"
+            android:strokeWidth="0.8"
+            android:pathData="M 54,54 C 47,42 45,33 50,27 C 51.5,25.5 53,28 54,30 C 55,28 56.5,25.5 58,27 C 63,33 61,42 54,54 Z" />
+    </group>
+
+    <!-- Petal 4: 216 degrees -->
+    <group
+        android:rotation="216"
+        android:pivotX="54"
+        android:pivotY="54">
+        <path
+            android:fillColor="#DC2626"
+            android:strokeColor="#7F1D1D"
+            android:strokeWidth="0.8"
+            android:pathData="M 54,54 C 47,42 45,33 50,27 C 51.5,25.5 53,28 54,30 C 55,28 56.5,25.5 58,27 C 63,33 61,42 54,54 Z" />
+    </group>
+
+    <!-- Petal 5: 288 degrees -->
+    <group
+        android:rotation="288"
+        android:pivotX="54"
+        android:pivotY="54">
+        <path
+            android:fillColor="#DC2626"
+            android:strokeColor="#7F1D1D"
+            android:strokeWidth="0.8"
+            android:pathData="M 54,54 C 47,42 45,33 50,27 C 51.5,25.5 53,28 54,30 C 55,28 56.5,25.5 58,27 C 63,33 61,42 54,54 Z" />
+    </group>
+
+    <!-- Sakura Gold/Orange Core Accent -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M 54,49.5 A 4.5,4.5 0 1,1 53.99,49.5 Z" />
+
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M 54,52 A 2,2 0 1,1 53.99,52 Z" />
+
+</vector>
