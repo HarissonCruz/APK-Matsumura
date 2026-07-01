@@ -170,6 +170,10 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         _loginError.value = null
     }
 
+    fun setLoginError(msg: String?) {
+        _loginError.value = msg
+    }
+
     private val _isSyncing = MutableStateFlow(false)
     val isSyncing = _isSyncing.asStateFlow()
 

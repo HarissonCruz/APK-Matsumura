@@ -40,6 +40,26 @@ fun LoginScreen(viewModel: GymViewModel) {
     var passwordVisible by remember { mutableStateOf(false) }
     var showConfigDialog by remember { mutableStateOf(false) }
 
+    var agreedToTerms by remember { mutableStateOf(false) }
+    var showDistPolicyDialog by remember { mutableStateOf(false) }
+    var showTermsDialog by remember { mutableStateOf(false) }
+
+    if (showDistPolicyDialog) {
+        LegalDocumentDialog(
+            title = "Contrato de Distribuição",
+            content = DIST_POLICY_TEXT,
+            onDismiss = { showDistPolicyDialog = false }
+        )
+    }
+
+    if (showTermsDialog) {
+        LegalDocumentDialog(
+            title = "Termos e Condições",
+            content = TERMS_CONDITIONS_TEXT,
+            onDismiss = { showTermsDialog = false }
+        )
+    }
+
     val loginError by viewModel.loginError.collectAsStateWithLifecycle()
     val isSupabaseOnline by viewModel.isSupabaseOnline.collectAsStateWithLifecycle()
 
@@ -296,6 +316,64 @@ fun LoginScreen(viewModel: GymViewModel) {
                                 .fillMaxWidth()
                                 .testTag("login_confirm_password_input")
                         )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Requisitos de senha dinâmicos
+                        PasswordRequirementsList(password = password, email = email)
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Checkbox de Concordância com Termos e Políticas
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { agreedToTerms = !agreedToTerms }
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Checkbox(
+                                checked = agreedToTerms,
+                                onCheckedChange = { agreedToTerms = it }
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Eu concordo com a",
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = "Política de Distribuição",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.clickable { showDistPolicyDialog = true }
+                                    )
+                                    Text(
+                                        text = "e os",
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = "Termos e Condições",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.clickable { showTermsDialog = true }
+                                    )
+                                }
+                                Text(
+                                    text = "do Matsumura Connect",
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -304,6 +382,18 @@ fun LoginScreen(viewModel: GymViewModel) {
                     Button(
                         onClick = {
                             if (isSignUp) {
+                                if (!validateAllRules(password, email)) {
+                                    viewModel.setLoginError("A senha não atende a todos os requisitos de segurança.")
+                                    return@Button
+                                }
+                                if (password != confirmPassword) {
+                                    viewModel.setLoginError("As senhas não coincidem.")
+                                    return@Button
+                                }
+                                if (!agreedToTerms) {
+                                    viewModel.setLoginError("Você deve concordar com a Política de Distribuição e os Termos e Condições.")
+                                    return@Button
+                                }
                                 viewModel.register(email, password, confirmPassword, selectedRole) { success ->
                                     if (success) {
                                         // Login automatico no VM
@@ -324,6 +414,7 @@ fun LoginScreen(viewModel: GymViewModel) {
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (selectedRole == "Professor") MaterialTheme.colorScheme.secondary else if (selectedRole == "Financeiro") MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
                         ),
+                        enabled = !isSignUp || (password.isNotEmpty() && confirmPassword.isNotEmpty() && agreedToTerms && validateAllRules(password, email) && password == confirmPassword),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Text(

@@ -66,6 +66,26 @@ fun GymAppLayout(viewModel: GymViewModel) {
         var errorMsg by remember { mutableStateOf<String?>(null) }
         var isSavingPsw by remember { mutableStateOf(false) }
 
+        var agreedToTerms by remember { mutableStateOf(false) }
+        var showDistPolicyDialog by remember { mutableStateOf(false) }
+        var showTermsDialog by remember { mutableStateOf(false) }
+
+        if (showDistPolicyDialog) {
+            LegalDocumentDialog(
+                title = "Contrato de Distribuição",
+                content = DIST_POLICY_TEXT,
+                onDismiss = { showDistPolicyDialog = false }
+            )
+        }
+
+        if (showTermsDialog) {
+            LegalDocumentDialog(
+                title = "Termos e Condições",
+                content = TERMS_CONDITIONS_TEXT,
+                onDismiss = { showTermsDialog = false }
+            )
+        }
+
         AlertDialog(
             onDismissRequest = { /* Não permite fechar */ },
             title = {
@@ -79,7 +99,9 @@ fun GymAppLayout(viewModel: GymViewModel) {
             text = {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
                 ) {
                     Text(
                         text = "Olá, ${loggedInAthlete.name}! Para garantir a segurança de seus dados, altere a senha padrão antes de prosseguir.",
@@ -94,7 +116,7 @@ fun GymAppLayout(viewModel: GymViewModel) {
                             errorMsg = null
                         },
                         label = { Text("Nova Senha") },
-                        placeholder = { Text("Mínimo 6 caracteres") },
+                        placeholder = { Text("Digite sua nova senha") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
@@ -119,6 +141,60 @@ fun GymAppLayout(viewModel: GymViewModel) {
                         )
                     )
 
+                    // Requisitos de senha dinâmicos
+                    PasswordRequirementsList(password = newPsw, email = loggedInAthlete.email)
+
+                    // Checkbox de Concordância com Termos e Políticas
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { agreedToTerms = !agreedToTerms }
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Checkbox(
+                            checked = agreedToTerms,
+                            onCheckedChange = { agreedToTerms = it }
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Eu concordo com a",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = "Política de Distribuição",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.clickable { showDistPolicyDialog = true }
+                                )
+                                Text(
+                                    text = "e os",
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "Termos e Condições",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.clickable { showTermsDialog = true }
+                                )
+                            }
+                            Text(
+                                text = "do Matsumura Connect",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+
                     if (errorMsg != null) {
                         Text(
                             text = errorMsg ?: "",
@@ -133,12 +209,16 @@ fun GymAppLayout(viewModel: GymViewModel) {
                 Button(
                     onClick = {
                         val cleanPsw = newPsw.trim()
-                        if (cleanPsw.length < 6) {
-                            errorMsg = "A senha deve conter pelo menos 6 caracteres."
+                        if (!validateAllRules(cleanPsw, loggedInAthlete.email)) {
+                            errorMsg = "A senha não atende a todos os requisitos."
                             return@Button
                         }
                         if (cleanPsw != confirmNewPsw.trim()) {
                             errorMsg = "As senhas não coincidem."
+                            return@Button
+                        }
+                        if (!agreedToTerms) {
+                            errorMsg = "Você deve aceitar a Política de Distribuição e os Termos e Condições."
                             return@Button
                         }
                         isSavingPsw = true
@@ -150,7 +230,7 @@ fun GymAppLayout(viewModel: GymViewModel) {
                             isSavingPsw = false
                         }
                     },
-                    enabled = !isSavingPsw && newPsw.isNotEmpty() && confirmNewPsw.isNotEmpty(),
+                    enabled = !isSavingPsw && newPsw.isNotEmpty() && confirmNewPsw.isNotEmpty() && agreedToTerms && validateAllRules(newPsw.trim(), loggedInAthlete.email) && newPsw.trim() == confirmNewPsw.trim(),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     if (isSavingPsw) {
@@ -204,6 +284,26 @@ fun GymAppLayout(viewModel: GymViewModel) {
         var errorMsg by remember { mutableStateOf<String?>(null) }
         var successMsg by remember { mutableStateOf<String?>(null) }
         var isSaving by remember { mutableStateOf(false) }
+
+        var agreedToTerms by remember { mutableStateOf(false) }
+        var showDistPolicyDialog by remember { mutableStateOf(false) }
+        var showTermsDialog by remember { mutableStateOf(false) }
+
+        if (showDistPolicyDialog) {
+            LegalDocumentDialog(
+                title = "Contrato de Distribuição",
+                content = DIST_POLICY_TEXT,
+                onDismiss = { showDistPolicyDialog = false }
+            )
+        }
+
+        if (showTermsDialog) {
+            LegalDocumentDialog(
+                title = "Termos e Condições",
+                content = TERMS_CONDITIONS_TEXT,
+                onDismiss = { showTermsDialog = false }
+            )
+        }
 
         val context = LocalContext.current
         val imagePickerLauncher = rememberLauncherForActivityResult(
@@ -409,7 +509,7 @@ fun GymAppLayout(viewModel: GymViewModel) {
                         successMsg = null
                     },
                     label = { Text("Nova Senha") },
-                    placeholder = { Text("Mínimo 6 caracteres") },
+                    placeholder = { Text("Digite para alterar") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true
@@ -428,6 +528,62 @@ fun GymAppLayout(viewModel: GymViewModel) {
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true
                 )
+
+                if (newPsw.isNotEmpty()) {
+                    // Requisitos de senha dinâmicos
+                    PasswordRequirementsList(password = newPsw, email = userEmail)
+
+                    // Checkbox de Concordância com Termos e Políticas
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { agreedToTerms = !agreedToTerms }
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Checkbox(
+                            checked = agreedToTerms,
+                            onCheckedChange = { agreedToTerms = it }
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Eu concordo com a",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = "Política de Distribuição",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.clickable { showDistPolicyDialog = true }
+                                )
+                                Text(
+                                    text = "e os",
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "Termos e Condições",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.clickable { showTermsDialog = true }
+                                )
+                            }
+                            Text(
+                                text = "do Matsumura Connect",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
 
                 if (errorMsg != null) {
                     Text(
@@ -468,12 +624,16 @@ fun GymAppLayout(viewModel: GymViewModel) {
                                 return@Button
                             }
                             if (newPsw.isNotEmpty()) {
-                                if (newPsw.length < 6) {
-                                    errorMsg = "A nova senha deve ter no mínimo 6 caracteres."
+                                if (!validateAllRules(newPsw, userEmail)) {
+                                    errorMsg = "A nova senha não atende a todos os requisitos."
                                     return@Button
                                 }
                                 if (newPsw != confirmNewPsw) {
                                     errorMsg = "As senhas não coincidem."
+                                    return@Button
+                                }
+                                if (!agreedToTerms) {
+                                    errorMsg = "Você deve aceitar a Política de Distribuição e os Termos e Condições."
                                     return@Button
                                 }
                             }
@@ -490,13 +650,14 @@ fun GymAppLayout(viewModel: GymViewModel) {
                                     errorMsg = null
                                     newPsw = ""
                                     confirmNewPsw = ""
+                                    agreedToTerms = false
                                 } else {
                                     errorMsg = message
                                     successMsg = null
                                 }
                             }
                         },
-                        enabled = !isSaving,
+                        enabled = !isSaving && (newPsw.isEmpty() || (confirmNewPsw.isNotEmpty() && agreedToTerms && validateAllRules(newPsw, userEmail) && newPsw == confirmNewPsw)),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1f)
                     ) {
